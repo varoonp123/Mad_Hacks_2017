@@ -9,8 +9,17 @@ def bounds(mylist = []):
 		mylist[i] = max(min(mylist[i], 100), 0)
 		total += mylist[i]
 	
-	for i in range(0,l):
-		mylist[i] = int(mylist[i] / total * maxE)
+	if (total != 0):
+		for i in range(0,l):
+			mylist[i] = int(mylist[i] / total * maxE)
+	else:
+		for i in range(0, l):
+			mylist[i] = (maxE / l)
 
-# print mylist 
-# print total
+# 	print mylist 
+
+# test cases
+# bounds([3, 6, 1, 0])
+# bounds([0, 0, 0, 0])
+# bounds([200, 200, 200, 200])
+# bounds([-1, -4, -5, -9])
