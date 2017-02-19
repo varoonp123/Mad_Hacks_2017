@@ -21,7 +21,7 @@ pygame.init()
 screen = pygame.display.set_mode(SCREEN_SIZE,0,32)
 
 #initialize the player
-player = Player(player_img_name, 10, 10, 100, 100)
+player = Player(player_img_name, PLAYER_SPEED, PLAYER_HEALTH, 100, 100)
 #set paused status to false
 paused = False
 map_showing = False
@@ -46,18 +46,28 @@ pause_menu = Splash_Screen((160,120),0,pause_menu_backgrounds,pause_menu_images,
 map_overlay_backgrounds = [map_overlay_img]
 map_overlay = Splash_Screen((0,0),0,map_overlay_backgrounds,[(starting_room_img,(305,225))],[])
 
+health_enter = PLAYER_HEALTH
+health_exit = PLAYER_HEALTH 
+
+#SEND THIS DATA TO EVOLUTION
+health_diff = 0
 
 
 while True:
 
-    enemy_attr = [rand.randint(1,10), rand.randint(3,10), rand.randint(1,10)]
+    #REPLACE RANDOM NUMBERS WITH DATA FROM EVOLUTION
+    enemy_attr = [rand.randint(1,10), rand.randint(3,10), rand.randint(200, 500), rand.randint(10, 50), rand.randint(1,10), rand.randint(1000,1500), rand.randint(0, 120)]
     #set clock to save the time between frames
     dt = clock.tick(FPS)
     speed = float(dt)/64
 
     #print(str(level_1.current_room.enemy_count))
     #print(str(player.health))
-
+     
+    print('health enter: ' + str(health_enter))
+    print('health exit' + str(health_exit))
+    print('health diff: ' + str(health_diff))
+    
     ##########SCENE-RENDERING#########
     #rendering for title scene
 
@@ -79,14 +89,19 @@ while True:
             for l in level_1.current_room.lasers:
                 l.behave(speed,dt)
                 for e in level_1.current_room.enemies:
-                    l.on_collision(e)
+                    e.on_collision(l)
 
             for e in level_1.current_room.enemies:
+                #print(str(e.health))
                 e.behave(speed, dt)
-                player.on_collision(e)
+                for l in level_1.current_room.lasers:
+                    player.on_collision(level_1.current_room,e, l)
 
             for p in level_1.current_room.portals:
-                p.on_collision(player,screen, enemy_attr)
+                if p.on_collision(player,screen, enemy_attr):
+                    health_exit = player.health
+                    health_diff = health_enter - health_exit
+                    health_enter = player.health
 
 
 

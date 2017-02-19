@@ -2,11 +2,9 @@
 # @Date:   18-02-2017
 # @Filename: GAME_AND_EVOLUTION.py
 # @Last modified by:   varoon
-# @Last modified time: 18-02-2017
+# @Last modified time: 19-02-2017
 
 from random import Random
-from time import time
-from time import sleep
 import inspyred
 import itertools
 import pygame
@@ -30,89 +28,86 @@ import time
 def evolution():
     #6 Traints: health, number of enemies, shot frequency, enemy speed, shot speed, amount of zig zag.
   #generator function. enemy attribues that add up to 100. Only for Generation 0.
-  def generate_enemy(random,args):
-      SUM_OF_TRAITS = 100
-      enemy_feature_vector = []
-      #fire rate
-      for i in range(1,5):
-          enemy_feature_vector.append(random.uniform(1,20))
-      #health = random.uniform(1,20)
-      #aggression=random.uniform(1,20)
-      #dodge_likelihood = random.uniform(1,20)
-      #shot_speed = random.uniform(1,20)
-      speed = SUM_OF_TRAITS - sum(enemy_feature_vector)
-      enemy_feature_vector.append(speed)
-      print(enemy_feature_vector)
-      #print(sum(enemy_feature_vector))
-      return enemy_feature_vector
+    def generate_enemy(random,args):
+        SUM_OF_TRAITS = 100
+        enemy_feature_vector = []
+        #fire rate
+        for i in range(1,6):
+            enemy_feature_vector.append(random.uniform(1,20))
+            #health = random.uniform(1,20)
+            #aggression=random.uniform(1,20)
+            #dodge_likelihood = random.uniform(1,20)
+            #shot_speed = random.uniform(1,20)
+        speed = SUM_OF_TRAITS - sum(enemy_feature_vector)
+        enemy_feature_vector.append(speed)
+        print(enemy_feature_vector)
+        #print(sum(enemy_feature_vector))
+        return enemy_feature_vector
 
 
   #gives segments, calculates area of polygon
-  def survival(enemy):
-      conn.send(enemy)
-      x = conn.recv()
-      return max(enemy)
+      def survival(enemy):
+          conn.send(enemy)
+          x = conn.recv()
+          return max(enemy)
 
-  #evaluator function. returns list of survival scores of entire generation.
-  def evaluate_enemy(candidates, args):
+      #evaluator function. returns list of survival scores of entire generation.
+      def evaluate_enemy(candidates, args):
 
-      fitness=[]
-      #print("eval")
-      for cs in candidates:
-          fit = survival(cs)
-          fitness.append(fit)
-      return fitness
+          fitness=[]
+          #print("eval")
+          for cs in candidates:
+              fit = survival(cs)
+              fitness.append(fit)
+          return fitness
 
   #need to bound each parameter. 0<=EACH_TRAIT<=100
-  """
-  def bound_enemy(enemy,args):
-      #amount still left to be allocated/overallocated. Positive if can add more traits.
-      while (sum(enemy) is not 100):
-          unallocated = 100-sum(enemy)
-          for i in range(0,size(enemy))
-              if enemy[i] + unallocated/size(enemy) > 0:      #if adding portion of unallocated keeps trait positive
-                  enemy[i] = enemy[i] + unallocated/size(enemy)
-      return enemy
+      def bound_enemy(mylist ,args):
+          l = len(mylist)
+          total = 0.0
+          maxE = 100
 
-  def bound_enemy(candidate, args):
-      for i in range(0,size(candidate)):
-          candidate[i] = max(min(candidate[i], 100), 0)
-      return candidate
-  bound_polygon.lower_bound = itertools.repeat(-1)
-  bound_polygon.upper_bound = itertools.repeat(1)
+          # 	Loop through the list and make sure that all values are between 0 and 100 inclusive
+          for i in range(0,l):
+              mylist[i] = max(min(mylist[i], 100), 0)
+              total += mylist[i]
 
-  #ACTUAL EVOLUTION
-  """
-  def mutate_enemy(random,candidates,args):
-      #gaussian distrubtion for random mutation
-      mut_rate = args.setdefault('mutation_rate', 0.1)
-      #bounder = args['_ec'].bounder
+          # 	Scale all list element values to sum to a total of 100
+          	if (total != 0):
+          	     for i in range(0,l):
+          			mylist[i] = int(mylist[i] / total * maxE)
 
-      print("mutated")
-      return candidates
+          # 	Edge Case: Equally distribute across all list elements
+          	else:
+          		for i in range(0, l):
+          			mylist[i] = (maxE / l)
+            return myList
+
 
   #ACTUAL SCRIPT:
-  rand = Random()
-  rand.seed(int(time()))
-  my_ec = inspyred.ec.EvolutionaryComputation(rand)
-  my_ec.selector = inspyred.ec.selectors.tournament_selection
-  my_ec.variator = [inspyred.ec.variators.uniform_crossover,mutate_enemy]
-  my_ec.replacer = inspyred.ec.replacers.steady_state_replacement
-  my_ec.terminator = [inspyred.ec.terminators.generation_termination]
+    bound_enemy.lower_bound=itertools.repeat(-1)
+    bound_enemy.upper_bound=itertools.repeat(1)
+    rand = Random()
+    rand.seed(int(time.time()))
+    my_ec = inspyred.ec.EvolutionaryComputation(rand)
+    my_ec.selector = inspyred.ec.selectors.tournament_selection
+    my_ec.variator = [inspyred.ec.variators.laplace_crossover,inspyred.ec.variators.gaussian_mutation]]
+    my_ec.replacer = inspyred.ec.replacers.steady_state_replacement
+    my_ec.terminator = [inspyred.ec.terminators.generation_termination]
 
-  final_pop = my_ec.evolve(generator=generate_enemy,
+    final_pop = my_ec.evolve(generator=generate_enemy,
                            evaluator=evaluate_enemy,
                            pop_size=30,
-                           #bounder=inspyred.ec.Bounder(0,100),
+                           bounder=bound_enemy,
                            max_evaluations=500,
                            num_selected=2,
                            mutation_rate=0.25,
                            max_generations=10)
   # Sort and print the best individual, who will be at index 0.
-  final_pop.sort(reverse=True)
-  print('Terminated due to {0}.'.format(my_ec.termination_cause))
-  print(final_pop[0])
-  print(my_ec.num_generations)
+    final_pop.sort(reverse=True)
+    print('Terminated due to {0}.'.format(my_ec.termination_cause))
+    print(final_pop[0])
+    print(my_ec.num_generations)
 
 #----------------------------------------------------------------
 #PYGAME SECTION

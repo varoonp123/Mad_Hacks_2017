@@ -1,12 +1,5 @@
-# @Author: Varoon Pazhyanur <varoon>
-# @Date:   18-02-2017
-# @Filename: sprites.py
-# @Last modified by:   varoon
-# @Last modified time: 18-02-2017
-
-
-
 import pygame
+from assets import *
 from values import *
 
 '''
@@ -53,11 +46,19 @@ class Player(pygame.sprite.Sprite):
 
         self.current_damage_time += dt
 
-    def on_collision(self, enemy):
+    def on_collision(self,room, enemy, laser):
         if self.rect.colliderect(enemy.rect):
-            if self.current_damage_time >= self.damage_time:
-                self.take_damage(1)
+            if self.current_damage_time >= self.damage_time: 
+                self.take_damage(1) 
                 self.current_damage_time = 0
+        if self.rect.colliderect(laser.rect):
+            if laser.laser_type == 1:
+                room.laser_sprite_group.remove(laser)
+                room.lasers.remove(laser)
+                if self.current_damage_time >= self.damage_time:
+                    self.take_damage(1)
+                    self.current_damage_time = 0
+
     '''
     function: adjust x_change or y_change
         direction: integer 0 through 3 representing different directions
@@ -88,6 +89,8 @@ class Player(pygame.sprite.Sprite):
 
     def take_damage(self, damage):
         self.health -= damage
+        if self.health <= 0:
+            self.health = 0
 '''
 class: enemy to be spawned in rooms
     room: room object that the enemy will occupy
@@ -98,13 +101,13 @@ class: enemy to be spawned in rooms
     init_y: integer initial y location of the enemy
 '''
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self,room,frames,ani_time,displacement,speed,fire_rate, shot_speed, health, init_x,init_y):
+    def __init__(self,room,frames,ani_time,displacement,speed,fire_rate,shot_speed,health,laser_life_time,init_x,init_y):
         super().__init__()
 
+        self.laser_life_time = laser_life_time
         self.room = room
         self.x_speed = speed
         self.y_speed = speed
-        self.fire_rate = fire_rate
         self.frames = frames
         self.current_frame_set = self.frames
         self.frame_idx = -1
@@ -121,6 +124,11 @@ class Enemy(pygame.sprite.Sprite):
 
         self.shot_speed = shot_speed
         self.health = health
+        self.fire_rate = fire_rate
+        self.current_fire_time = 0
+
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
     def animate(self, dt):
         if self.current_ani_time >= self.ani_time:
@@ -128,14 +136,14 @@ class Enemy(pygame.sprite.Sprite):
 
             if self.frame_idx >= len(self.current_frame_set):
                 self.frame_idx = 0
-
+            
             self.current_frame = self.current_frame_set[self.frame_idx]
             self.current_ani_time = 0
             self.image = pygame.image.load(self.current_frame)
 
             if self.current_frame_set != self.frames:
                 self.current_frame_set = self.frames
-
+            
         else:
             self.current_ani_time += dt
 
@@ -161,9 +169,33 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = self.loc_init[0]+self.max_displacement
         elif self.rect.x <= (self.loc_init[0]-self.max_displacement):
             self.rect.x = self.loc_init[0]-self.max_displacement
+            
+        if self.current_fire_time >= self.fire_rate:
+            self.shoot()
+            self.current_fire_time = 0
+        else:
+            self.current_fire_time += dt
 
         if self.health <= 0:
+            print('health = 0')
+            self.room.enemies.remove(self)
+            self.room.enemy_sprite_group.remove(self)
+            self.room.enemy_count -= 1
             self.kill()
+
+    def shoot(self):
+        enemy_laser = Enemy_Laser(self.room,enemy_laser_img_name,self.shot_speed,1,self.laser_life_time, self.rect.x + self.width - 5, self.rect.y + self.height - 5)
+        self.room.laser_sprite_group.add(enemy_laser)
+        self.room.lasers.append(enemy_laser)
+
+    def on_collision(self, laser):
+        if self.rect.colliderect(laser.rect):
+            if laser.laser_type == 0:
+                self.room.laser_sprite_group.remove(laser)
+                #self.room.lasers.remove(laser)
+                self.health -= 1
+
+
 
 '''
 class: laser projectile from the player
@@ -174,7 +206,7 @@ class: laser projectile from the player
    y: integer y coordinate of the spawn location
 '''
 class Player_Laser(pygame.sprite.Sprite):
-    def __init__(self,room,image,speed,x,y):
+    def __init__(self,room,image,speed,laser_type,x,y):
         super().__init__()
 
         self.room = room
@@ -186,6 +218,7 @@ class Player_Laser(pygame.sprite.Sprite):
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.time_spawned = 0
+        self.laser_type = laser_type
 
     '''
     function: behave by adjusting the values of the object
@@ -202,7 +235,7 @@ class Player_Laser(pygame.sprite.Sprite):
     '''
     function: what to do when the object collides with an enemy
         enemy: enemy object that has been collided with
-    '''
+    
     def on_collision(self,enemy):
         if self.rect.colliderect(enemy.rect):
             self.room.laser_sprite_group.remove(self)
@@ -210,7 +243,7 @@ class Player_Laser(pygame.sprite.Sprite):
             self.room.lasers.remove(self)
             self.room.enemies.remove(enemy)
             self.room.enemy_count -= 1
-
+    '''
     def __repr__(self):
         return "X coor: " + str(self.rect.x) + " Y coor: " + str(self.rect.y) + " Time: " + str(self.time_spawned)
 
@@ -297,4 +330,52 @@ class Portal(pygame.sprite.Sprite):
                 self.level.current_room.generate(screen,enemy_attr)
                 self.level.current_room.ally_sprite_group.add(player)
                 player.rect.x = SCREEN_WIDTH - 60
-                player.rect.y = (SCREEN_HEIGHT/2)-10
+            return True
+        else:
+            return False
+
+
+class Enemy_Laser(pygame.sprite.Sprite):
+    def __init__(self,room,image,speed,laser_type,life_time,x,y):
+        super().__init__()
+
+        self.room = room
+        self.speed = speed
+        self.image = pygame.image.load(image)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.time_spawned = 0
+        self.laser_type = laser_type
+        self.life_time = life_time
+
+    '''
+    function: behave by adjusting the values of the object
+        speed: float speed of the game
+        dt: float time between cycles of the main loop
+    '''
+    def behave(self,speed,dt):
+        self.rect.y += self.speed*speed
+        self.time_spawned += dt
+        if self.time_spawned >= self.life_time:
+            self.room.laser_sprite_group.remove(self)
+            self.room.lasers.remove(self)
+            self.kill()
+
+    '''
+    function: what to do when the object collides with an enemy
+        enemy: enemy object that has been collided with
+    
+    def on_collision(self,enemy):
+        if self.rect.colliderect(enemy.rect):
+            self.room.laser_sprite_group.remove(self)
+            self.room.enemy_sprite_group.remove(enemy)
+            self.room.lasers.remove(self)
+            self.room.enemies.remove(enemy)
+            self.room.enemy_count -= 1
+    '''
+    def __repr__(self):
+        return "X coor: " + str(self.rect.x) + " Y coor: " + str(self.rect.y) + " Time: " + str(self.time_spawned)
+

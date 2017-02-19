@@ -38,6 +38,7 @@ enemy_1_frames.append('assets/images/sprites/enemies/enemy_1/enemy_clean/enemy_c
 enemy_img_name = "assets/images/sprites/enemies/enemy_1/enemy_clean/enemy_clean_1.png"
 #player blaster image
 player_laser_img_name = "assets/images/sprites/player_blaster/player_blaster.png"
+enemy_laser_img_name = 'assets/images/sprites/enemy_blaster/enemy_blaster.png'
 
 #frames for portal animation
 portal_unexplored_img_names = []
@@ -59,3 +60,5 @@ explored_room_img = "assets/images/map_overlay/room_explored_icon.png"
 
 half_heart_img = 'assets/images/ui/hearts/heart_half.png'
 full_heart_img = 'assets/images/ui/hearts/heart_full.png'
+empty_heart_img = 'assets/images/ui/hearts/heart_empty.png'
+
