@@ -1,3 +1,11 @@
+# @Author: Varoon Pazhyanur <varoon>
+# @Date:   18-02-2017
+# @Filename: sprites.py
+# @Last modified by:   varoon
+# @Last modified time: 18-02-2017
+
+
+
 import pygame
 from values import *
 
@@ -47,8 +55,8 @@ class Player(pygame.sprite.Sprite):
 
     def on_collision(self, enemy):
         if self.rect.colliderect(enemy.rect):
-            if self.current_damage_time >= self.damage_time: 
-                self.take_damage(1) 
+            if self.current_damage_time >= self.damage_time:
+                self.take_damage(1)
                 self.current_damage_time = 0
     '''
     function: adjust x_change or y_change
@@ -90,7 +98,7 @@ class: enemy to be spawned in rooms
     init_y: integer initial y location of the enemy
 '''
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self,room,frames,ani_time,displacement,speed,fire_rate,init_x,init_y):
+    def __init__(self,room,frames,ani_time,displacement,speed,fire_rate, shot_speed, health, init_x,init_y):
         super().__init__()
 
         self.room = room
@@ -111,20 +119,23 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = init_y
         self.loc_init = (self.rect.x,self.rect.y)
 
+        self.shot_speed = shot_speed
+        self.health = health
+
     def animate(self, dt):
         if self.current_ani_time >= self.ani_time:
             self.frame_idx += 1
 
             if self.frame_idx >= len(self.current_frame_set):
                 self.frame_idx = 0
-            
+
             self.current_frame = self.current_frame_set[self.frame_idx]
             self.current_ani_time = 0
             self.image = pygame.image.load(self.current_frame)
 
             if self.current_frame_set != self.frames:
                 self.current_frame_set = self.frames
-            
+
         else:
             self.current_ani_time += dt
 
@@ -150,6 +161,9 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = self.loc_init[0]+self.max_displacement
         elif self.rect.x <= (self.loc_init[0]-self.max_displacement):
             self.rect.x = self.loc_init[0]-self.max_displacement
+
+        if self.health <= 0:
+            self.kill()
 
 '''
 class: laser projectile from the player

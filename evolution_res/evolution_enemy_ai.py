@@ -44,40 +44,17 @@ def evaluate_enemy(candidates, args):
         fitness.append(fit)
     return fitness
 
-#need to bound each parameter. 0<=EACH_TRAIT<=100
-"""
-def bound_enemy(enemy,args):
-    #amount still left to be allocated/overallocated. Positive if can add more traits.
-    while (sum(enemy) is not 100):
-        unallocated = 100-sum(enemy)
-        for i in range(0,size(enemy))
-            if enemy[i] + unallocated/size(enemy) > 0:      #if adding portion of unallocated keeps trait positive
-                enemy[i] = enemy[i] + unallocated/size(enemy)
-    return enemy
-
-def bound_enemy(candidate, args):
-    for i in range(0,size(candidate)):
-        candidate[i] = max(min(candidate[i], 100), 0)
-    return candidate
-bound_polygon.lower_bound = itertools.repeat(-1)
-bound_polygon.upper_bound = itertools.repeat(1)
 
 #ACTUAL EVOLUTION
-"""
-def mutate_enemy(random,candidates,args):
-    #gaussian distrubtion for random mutation
-    mut_rate = args.setdefault('mutation_rate', 0.1)
-    #bounder = args['_ec'].bounder
 
-    print("mutated")
-    return candidates
-
+#NOTE: Laplace crossover is used because of its success in the April 2014 Journal of Theoretical and Applied Information Technology Lim Suleiman, et. al
+#NOTE: Gaussian mutation is used for its simplicity.
 #ACTUAL SCRIPT:
 rand = Random()
 rand.seed(int(time()))
 my_ec = inspyred.ec.EvolutionaryComputation(rand)
 my_ec.selector = inspyred.ec.selectors.tournament_selection
-my_ec.variator = [inspyred.ec.variators.uniform_crossover,mutate_enemy]
+my_ec.variator = [inspyred.ec.variators.laplace_crossover,inspyred.ec.variators.gaussian_mutation]
 my_ec.replacer = inspyred.ec.replacers.steady_state_replacement
 my_ec.terminator = [inspyred.ec.terminators.generation_termination]
 
@@ -88,7 +65,9 @@ final_pop = my_ec.evolve(generator=generate_enemy,
                          max_evaluations=500,
                          num_selected=2,
                          mutation_rate=0.25,
-                         max_generations=10)
+                         max_generations=10,
+                         lx_scale=10,    #analog of \sigma for the laplace distrubtion . used for laplace crossover)
+                         gaussian_stdev=9   #used for gaussian mutator, mu=0)
 # Sort and print the best individual, who will be at index 0.
 final_pop.sort(reverse=True)
 print('Terminated due to {0}.'.format(my_ec.termination_cause))

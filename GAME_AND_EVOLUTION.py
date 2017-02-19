@@ -4,8 +4,6 @@
 # @Last modified by:   varoon
 # @Last modified time: 18-02-2017
 
-
-
 from random import Random
 from time import time
 from time import sleep
@@ -30,13 +28,14 @@ import time
 #EVOLUTIONARY LEARNING SECTION
 
 def evolution():
-
+    #6 Traints: health, number of enemies, shot frequency, enemy speed, shot speed, amount of zig zag.
   #generator function. enemy attribues that add up to 100. Only for Generation 0.
   def generate_enemy(random,args):
       SUM_OF_TRAITS = 100
       enemy_feature_vector = []
       #fire rate
-      enemy_feature_vector.append(random.uniform(1,100))
+      for i in range(1,5):
+          enemy_feature_vector.append(random.uniform(1,20))
       #health = random.uniform(1,20)
       #aggression=random.uniform(1,20)
       #dodge_likelihood = random.uniform(1,20)
@@ -50,7 +49,8 @@ def evolution():
 
   #gives segments, calculates area of polygon
   def survival(enemy):
-      ## TODO: FIX THIS TO BE OBJECTIVE FUNCTION
+      conn.send(enemy)
+      x = conn.recv()
       return max(enemy)
 
   #evaluator function. returns list of survival scores of entire generation.
@@ -265,12 +265,12 @@ def game():
 
 
 if __name__ == '__main__':
-  conn1, conn2 = Pipe()
-  p1 = Process(target=evolution, args = (conn1,))
-  p2 = Process(target=game, args = (conn2,))
+  #conn1, conn2 = Pipe()
+  #p1 = Process(target=evolution, args = (conn1,))
+  p2 = Process(target=game)
 
-  p1.start()
+  #p1.start()
   p2.start()
 
-  p1.join()
-  p2.join()
+  #p1.join()
+  #p2.join()

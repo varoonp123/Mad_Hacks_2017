@@ -1,3 +1,11 @@
+# @Author: Varoon Pazhyanur <varoon>
+# @Date:   18-02-2017
+# @Filename: levels.py
+# @Last modified by:   varoon
+# @Last modified time: 18-02-2017
+
+
+
 import pygame
 import random as rand
 from sprites import *
@@ -16,7 +24,7 @@ class Room():
         self.room_type = room_type
         self.room_background_path = self.generate_room_background_path()
         self.room_background = None
-        self.enemy_number = -1 
+        self.enemy_number = -1
         self.enemy_count = 0
         self.enemy_sprite_group = pygame.sprite.Group()
         self.laser_sprite_group = pygame.sprite.Group()
@@ -50,14 +58,14 @@ class Room():
     def generate(self,screen,enemy_attr):
         self.generate_room(screen)
         self.generate_enemies(enemy_attr)
-    
+
     '''
     function: generate the room
         screen: pygame display to generate on
     '''
     def generate_room(self,screen):
         screen.blit(self.room_background,(0,0))
-    
+
     '''
     function: generate the enemies in the room
     '''
@@ -67,14 +75,15 @@ class Room():
             self.enemy_count = enemy_attr[0]
         i=0
         while i < self.enemy_number:
-            speed = enemy_attr[1] 
-            fire_rate = enemy_attr[2] 
+            #SPAWNING OF ENEMIES
+            speed = enemy_attr[1]
+            fire_rate = enemy_attr[2]
             displacement = 50
             enemy = Enemy(self,enemy_1_frames,ENEMY_1_ANI_TIME,displacement,speed,fire_rate,100+i*50,1)
             self.enemy_sprite_group.add(enemy)
             self.enemies.append(enemy)
             i += 1
-    
+
     '''
     function: generate the rooms portals
     '''
@@ -92,7 +101,7 @@ class Room():
             portal = Portal(self,self.level,portal_unexplored_img_names,90,loc[0],loc[1])
             self.interactable_sprite_group.add(portal)
             self.portals.append(portal)
-    
+
     '''
     function: generate the players laser
         player: player object to generate the lasers for
@@ -256,7 +265,7 @@ class Level():
             print(row)
 
         return coors
-    
+
     '''
     function: generate the levels map
     '''
