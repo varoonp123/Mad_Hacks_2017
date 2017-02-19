@@ -67,3 +67,20 @@ half_heart_img = 'assets/images/ui/hearts/heart_half.png'
 full_heart_img = 'assets/images/ui/hearts/heart_full.png'
 empty_heart_img = 'assets/images/ui/hearts/heart_empty.png'
 
+boss_body_frames = []
+for i in range(1, 4):
+    boss_body_frames.append('assets/images/sprites/enemies/boss_1/boss_clean_' + str(i) + '.png')
+
+boss_arm_1_frames =[]
+for i in range(1, 4):
+    boss_arm_1_frames.append('assets/images/sprites/enemies/boss_1/boss_arm/boss_arm_' + str(i) + '.png')
+
+boss_arm_2_frames = []
+for i in range(1, 4):
+    boss_arm_2_frames.append('assets/images/sprites/enemies/boss_1/boss_arm_gun/boss_arm_gun_' + str(i) + '.png')
+
+boss_arm_3_frames = []
+for i in range(1, 4):
+    boss_arm_3_frames.append('assets/images/sprites/enemies/boss_1/boss_arm_spawner/boss_arm_spawner_' + str(i) + '.png')
+
+

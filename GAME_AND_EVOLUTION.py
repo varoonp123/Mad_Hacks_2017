@@ -136,7 +136,7 @@ def game(conn):
     map_showing = False
     #initialize first room
 
-    size = 25
+    size = 3
 
     level_1 = Level(size)
     #add the player to the allies sprite group
@@ -175,8 +175,7 @@ def game(conn):
         #enemy_attr = [rand.randint(1,10), rand.randint(3,10), rand.randint(200, 500), rand.randint(10, 50), rand.randint(1,10), rand.randint(1000,1500), rand.randint(0, 120)]
         #set clock to save the time between frames
         dt = clock.tick(FPS)
-        speed = float(dt)/64
-
+        speed = .2
         #print(str(level_1.current_room.enemy_count))
         #print(str(player.health))
 
@@ -190,6 +189,7 @@ def game(conn):
         #print("scene rendering")
         #print('enemy number: ' + str(level_1.current_room.enemy_number) + ' enemy count: ' + str(level_1.current_room.enemy_count))
         #print(str(last_enemy_count)) 
+        #print(str(level_1.current_room.room_type))
         if scene == 0:
             title_screen.display(screen,dt)
             #print('scene done rendering')
@@ -211,7 +211,7 @@ def game(conn):
                         e.on_collision(l)
 
                 for e in level_1.current_room.enemies:
-                    print(str(e.health))
+                    #print(str(e.health))
                     e.behave(speed, dt)
                     for l in level_1.current_room.lasers:
                         player.on_collision(level_1.current_room,e, l)

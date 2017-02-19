@@ -62,23 +62,50 @@ class Room():
     function: generate the enemies in the room
     '''
     def generate_enemies(self,enemy_attr):
-        if self.enemy_number == -1:
-            self.enemy_number = enemy_attr[0]
-            self.enemy_count = enemy_attr[0]
-        i=0
-        while i < self.enemy_number:
-            speed = enemy_attr[1] 
-            fire_rate = enemy_attr[2] 
-            shot_speed = enemy_attr[3]
-            health = enemy_attr[4]
-            laser_life_time = enemy_attr[5]
-            displacement = enemy_attr[6]
-            spawn_x = rand.randint(75, SCREEN_WIDTH-75-32)
-            spawn_y = rand.randint(75, SCREEN_HEIGHT-75-32)
-            enemy = Enemy(self,enemy_1_frames,ENEMY_1_ANI_TIME,displacement,speed,fire_rate,shot_speed,health,laser_life_time,spawn_x,spawn_y)
-            self.enemy_sprite_group.add(enemy)
-            self.enemies.append(enemy)
-            i += 1
+        if self.room_type == 1:
+            if self.enemy_number == -1:
+                self.enemy_number = enemy_attr[0]
+                self.enemy_count = enemy_attr[0]
+            i=0
+            while i < self.enemy_number:
+                speed = enemy_attr[1] 
+                fire_rate = enemy_attr[2] 
+                shot_speed = enemy_attr[3]
+                health = enemy_attr[4]
+                laser_life_time = enemy_attr[5]
+                displacement = enemy_attr[6]
+                spawn_x = rand.randint(75, SCREEN_WIDTH-75-32)
+                spawn_y = rand.randint(75, SCREEN_HEIGHT-75-32)
+                enemy = Enemy(self,enemy_1_frames,ENEMY_1_ANI_TIME,displacement,speed,fire_rate,shot_speed,health,laser_life_time,spawn_x,spawn_y)
+                self.enemy_sprite_group.add(enemy)
+                self.enemies.append(enemy)
+                i += 1
+        elif self.room_type == 2:
+            displacement = 0
+            speed = 0
+            body_fire_rate = 100
+            body_shot_speed = 15
+            body_health = 80
+            body_range = 0
+
+            boss_body = Enemy(self,boss_body_frames,ENEMY_1_ANI_TIME,displacement,speed,body_fire_rate,body_shot_speed,body_health,body_range,500,300)
+            boss_arm_1 = Enemy(self,boss_arm_1_frames,ENEMY_1_ANI_TIME,displacement,speed,500,15,40,1600,boss_body.rect.x+95,boss_body.rect.y+15)
+
+            boss_arm_2 = Enemy(self,boss_arm_2_frames,ENEMY_1_ANI_TIME,displacement,speed,200,20,20,1000,boss_body.rect.x-20,boss_body.rect.y+90)
+
+            boss_arm_3 = Enemy(self,boss_arm_3_frames,ENEMY_1_ANI_TIME,displacement,speed,1000,10,65,1200,boss_body.rect.x+90,boss_body.rect.y+85)
+
+            self.enemy_sprite_group.add(boss_body)
+            self.enemy_sprite_group.add(boss_arm_1)
+            self.enemy_sprite_group.add(boss_arm_2)
+            self.enemy_sprite_group.add(boss_arm_3)
+            self.enemies.append(boss_body)
+
+            self.enemies.append(boss_arm_1)
+
+            self.enemies.append(boss_arm_2)
+
+            self.enemies.append(boss_arm_3)
     
     '''
     function: generate the rooms portals

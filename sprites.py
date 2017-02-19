@@ -200,8 +200,9 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x = self.loc_init[0]-self.max_displacement
             
         if self.current_fire_time >= self.fire_rate:
-            self.shoot()
-            self.current_fire_time = 0
+            if self.laser_life_time > 0:
+                self.shoot()
+                self.current_fire_time = 0
         else:
             self.current_fire_time += dt
 
