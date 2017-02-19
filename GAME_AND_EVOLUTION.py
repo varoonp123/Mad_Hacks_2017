@@ -24,36 +24,43 @@ import time
 
 #-----------------------------------------
 #EVOLUTIONARY LEARNING SECTION
-
+gen = -1
 def evolution(conn):
+    gen = -1
     def generate_enemy(random,args):
         SUM_OF_TRAITS = 100
         enemy_feature_vector = []
-        for i in range(1,6):
-            enemy_feature_vector.append(random.randint(1,20))
+        for i in range(1,7):
+            enemy_feature_vector.append(random.randint(1,30))
         speed = SUM_OF_TRAITS - sum(enemy_feature_vector)
         enemy_feature_vector.append(speed)
         enemy_feature_vector = bound_enemy(enemy_feature_vector, [])
-        print(enemy_feature_vector)
-        print(sum(enemy_feature_vector))
+       # print(enemy_feature_vector)
+       # print(sum(enemy_feature_vector))
         return enemy_feature_vector
 
 
     #gives segments, calculates area of polygon
     def survival(enemy):
         ## TODO: FIX THIS TO BE OBJECTIVE FUNCTION
+        print("SENDING")
         conn.send(enemy)
+        print("SENT")
         x = conn.recv()
 
-        return max(enemy)
+        return x
 
     #evaluator function. returns list of survival scores of entire generation.
     def evaluate_enemy(candidates, args):
-
+        global gen
+        gen = gen+1
+        
         fitness=[]
         #print("eval")
-        for cs in candidates:
-            fit = survival(cs)
+        print(len(candidates))
+        for i in range(0,len(candidates)):
+            print("GENERATION; {} ; SPECIES: {}".format(gen,i))
+            fit = survival(candidates[i])
             fitness.append(fit)
         return fitness
     def bound_enemy(mylist ,args):
@@ -75,7 +82,7 @@ def evolution(conn):
         else:
              for i in range(0, l):
                   mylist[i] = (maxE / l)
-        print(sum(mylist))
+        #print(sum(mylist))
         return mylist
 
 
@@ -86,17 +93,17 @@ def evolution(conn):
     #ACTUAL SCRIPT:
     rand = Random()
     my_ec = inspyred.ec.EvolutionaryComputation(rand)
-    my_ec.selector = inspyred.ec.selectors.tournament_selection
+    my_ec.selector = inspyred.ec.selectors.fitness_proportionate_selection
     my_ec.variator = [inspyred.ec.variators.laplace_crossover,inspyred.ec.variators.gaussian_mutation]
-    my_ec.replacer = inspyred.ec.replacers.steady_state_replacement
+    my_ec.replacer = inspyred.ec.replacers.truncation_replacement
     my_ec.terminator = [inspyred.ec.terminators.generation_termination]
 
     final_pop = my_ec.evolve(generator=generate_enemy,
                              evaluator=evaluate_enemy,
-                             pop_size=30,
+                             pop_size=8,
+                             num_selected = 6,
                              bounder=bound_enemy,
                              max_evaluations=500,
-                             num_selected=2,
                              mutation_rate=0.25,
                              max_generations=10,
                              lx_scale=10,    #analog of \sigma for the laplace distrubtion . used for laplace crossover)
@@ -125,7 +132,7 @@ def game(conn):
     map_showing = False
     #initialize first room
 
-    size = 5
+    size = 25
 
     level_1 = Level(size)
     #add the player to the allies sprite group
@@ -149,13 +156,17 @@ def game(conn):
 
     #SEND THIS DATA TO EVOLUTION
     health_diff = 0
+    enemy_attr = [rand.randint(1,10), rand.randint(3,10), rand.randint(200, 500), rand.randint(10, 50), rand.randint(1,10), rand.randint(1000,1500), rand.randint(0, 120)]
 
 
     while True:
 
         #REPLACE RANDOM NUMBERS WITH DATA FROM EVOLUTION
-        x= conn.recv()
-        enemy_attr = [1+int(math.floor(x[0]/10)) , int(math.ceil(x[1]/10)+3) , int(math.ceil(x[2]))*3+200 , int(math.ceil(x[3]/2)+10) , 1+int(math.ceil(x[4]/10)) , int(math.ceil(x[5]*5+1000)) , int(math.ceil(x[6]*1.2))]
+        #print("BEFORE RECV")
+
+        #x= conn.recv()
+        #print("rCVD: {}".format(x))
+        #enemy_attr = [1+int(math.floor(x[0]/10)) , int(math.ceil(x[1]/10)+3) , int(math.ceil(x[2]))*3+200 , int(math.ceil(x[3]/2)+10) , 1+int(math.ceil(x[4]/10)) , int(math.ceil(x[5]*5+1000)) , int(math.ceil(x[6]*1.2))]
         #enemy_attr = [rand.randint(1,10), rand.randint(3,10), rand.randint(200, 500), rand.randint(10, 50), rand.randint(1,10), rand.randint(1000,1500), rand.randint(0, 120)]
         #set clock to save the time between frames
         dt = clock.tick(FPS)
@@ -164,16 +175,17 @@ def game(conn):
         #print(str(level_1.current_room.enemy_count))
         #print(str(player.health))
 
-        print('health enter: ' + str(health_enter))
-        print('health exit' + str(health_exit))
-        print('health diff: ' + str(health_diff))
+        #print('health enter: ' + str(health_enter))
+        #print('health exit' + str(health_exit))
+        #print('health diff: ' + str(health_diff))
 
         ##########SCENE-RENDERING#########
         #rendering for title scene
 
-
+        #print("scene rendering")
         if scene == 0:
             title_screen.display(screen,dt)
+            #print('scene done rendering')
 
         #rendering for the firsl level scene
         elif scene == 1:
@@ -202,8 +214,16 @@ def game(conn):
                         health_exit = player.health
                         health_diff = health_enter - health_exit
                         health_enter = player.health
+                        print("BEFORE RECV")
+
+                        x= conn.recv()
+                        print("rCVD: {}; {}".format(x, sum(x)))
+                        enemy_attr = [1+int(math.floor(x[0]/10)) , int(math.ceil(x[1]/10)+3) , int(math.ceil(x[2]))*3+200 , int(math.ceil(x[3]/2)+10) , 1+int(math.ceil(x[4]/10)) , int(math.ceil(x[5]*5+1000)) , int(math.ceil(x[6]*1.2))]
+ 
+                    
                         conn.send(health_diff)
 
+                        print("HEALTH DIFF SENT: {}".format(health_diff))
 
                 player.behave(speed, dt)
 

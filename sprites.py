@@ -177,7 +177,7 @@ class Enemy(pygame.sprite.Sprite):
             self.current_fire_time += dt
 
         if self.health <= 0:
-            print('health = 0')
+            #print('health = 0')
             self.room.enemies.remove(self)
             self.room.enemy_sprite_group.remove(self)
             self.room.enemy_count -= 1

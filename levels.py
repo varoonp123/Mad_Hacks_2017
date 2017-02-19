@@ -253,10 +253,10 @@ class Level():
                 coors.append(new_coor)
                 break
 
-        print(boss_candidates)
-        print(boss_room)
-        for row in floor_map:
-            print(row)
+        #print(boss_candidates)
+        #print(boss_room)
+        #for row in floor_map:
+           # print(row)
 
         return coors
     
