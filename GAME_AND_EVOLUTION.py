@@ -57,7 +57,7 @@ def evolution(conn):
         
         fitness=[]
         #print("eval")
-        print(len(candidates))
+       # print(len(candidates))
         for i in range(0,len(candidates)):
             print("GENERATION; {} ; SPECIES: {}".format(gen,i))
             fit = survival(candidates[i])
@@ -136,7 +136,7 @@ def game(conn):
     map_showing = False
     #initialize first room
 
-    size = 3
+    size = 10
 
     level_1 = Level(size)
     #add the player to the allies sprite group
@@ -227,11 +227,10 @@ def game(conn):
                         if last_enemy_count > 0: 
                             x= conn.recv()
                             enemy_attr = [1+int(math.floor(x[0]/10)) , int(math.ceil(x[1]/10)+3) , int(math.ceil(x[2]))*3+200 , int(math.ceil(x[3]/2)+10) , 5+int(math.ceil((x[4]/10))*5) , int(math.ceil(x[5]*5+1000)) , int(math.ceil(x[6]*1.2))]
-                            print(enemy_attr) 
                     
                             conn.send(health_diff)
 
-                            print("HEALTH DIFF SENT: {}".format(health_diff))
+                            print("FITTNESS_SCORE: {}".format(health_diff))
                         last_enemy_count = level_1.current_room.enemy_count
                 player.behave(speed, dt)
 
