@@ -73,7 +73,9 @@ class Room():
             health = enemy_attr[4]
             laser_life_time = enemy_attr[5]
             displacement = enemy_attr[6]
-            enemy = Enemy(self,enemy_1_frames,ENEMY_1_ANI_TIME,displacement,speed,fire_rate,shot_speed,health,laser_life_time,100+i*50,1)
+            spawn_x = rand.randint(75, SCREEN_WIDTH-75-32)
+            spawn_y = rand.randint(75, SCREEN_HEIGHT-75-32)
+            enemy = Enemy(self,enemy_1_frames,ENEMY_1_ANI_TIME,displacement,speed,fire_rate,shot_speed,health,laser_life_time,spawn_x,spawn_y)
             self.enemy_sprite_group.add(enemy)
             self.enemies.append(enemy)
             i += 1

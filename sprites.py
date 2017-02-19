@@ -10,12 +10,21 @@ class: controllable player
     init_y: initial y coordinate of the player
 '''
 class Player(pygame.sprite.Sprite):
-    def __init__(self,image,speed,health,init_x,init_y):
+    def __init__(self,frames,ani_time,speed,health,init_x,init_y):
         super().__init__()
 
         self.health = health
+        self.frames = frames
+        self.ani_time = ani_time
+        self.current_ani_time = 0
+        self.current_frame_set = self.frames
+        self.current_frame = self.current_frame_set[0]
+        
+
         self.speed = speed
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(self.current_frame)
+
+        self.frame_idx = -1
         self.rect = self.image.get_rect()
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -32,6 +41,8 @@ class Player(pygame.sprite.Sprite):
         speed: float speed of the game
     '''
     def behave(self,speed, dt):
+        self.animate(dt)
+
         self.rect.x += self.x_change*speed
         self.rect.y += self.y_change*speed
 
@@ -45,6 +56,24 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 0
 
         self.current_damage_time += dt
+
+    def animate(self, dt):
+        if self.current_ani_time >= self.ani_time:
+            self.frame_idx += 1
+
+            if self.frame_idx >= len(self.current_frame_set):
+                self.frame_idx = 0
+            
+            self.current_frame = self.current_frame_set[self.frame_idx]
+            self.current_ani_time = 0
+            self.image = pygame.image.load(self.current_frame)
+
+            if self.current_frame_set != self.frames:
+                self.current_frame_set = self.frames
+            
+        else:
+            self.current_ani_time += dt
+  
 
     def on_collision(self,room, enemy, laser):
         if self.rect.colliderect(enemy.rect):

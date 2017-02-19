@@ -28,6 +28,11 @@ pause_menu_img_name = "assets/images/pause_menu/pause_menu.png"
 
 #player ship image
 player_img_name = "assets/images/sprites/player_ship/player_ship.png"
+
+player_ship_frames = []
+
+for i in range(1,4):
+    player_ship_frames.append('assets/images/sprites/player_ship/ship_' + str(i) + '.png')
 #enemy ship image
 
 enemy_1_frames = []
